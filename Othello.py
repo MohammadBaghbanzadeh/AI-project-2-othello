@@ -59,7 +59,11 @@ class Othello:
             arr[ind[0]][ind[1]] = player
             for i in flip_coins:
                 arr[i[0]][i[1]] = player
-            player = 'b' if player == 'w' else 'w'
+
+            # Check if the opponent has a valid move, then switch the turn.
+            opponent = 'b' if player == 'w' else 'w'
+            if self.find_correct_moves(arr, self.find_empty(arr), opponent)[0]:
+                player = 'b' if player == 'w' else 'w'
 
             winner, draw = 0, False
             if self.end_game(arr):
