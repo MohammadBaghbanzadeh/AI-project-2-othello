@@ -16,3 +16,4 @@ def evaluate(board, player):
         utility = white_utility - black_utility
 
     return utility
+
