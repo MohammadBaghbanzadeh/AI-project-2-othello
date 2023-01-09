@@ -1,20 +1,27 @@
 import copy
+import math
 
-
-def minimax(board, depth, maximizer, active_player):
+def minimax(board, depth, alpha, beta, maximizer, active_player):
     if depth == 0 or board.end_game():
         return None, evaluate(board, active_player)
 
     children = board.successor(board)
-    # best_move = children[0]
+    best_move = children[0]
 
     if maximizer:
         max_list = []
+        max_eval = -math.inf
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = minimax(board_copy, depth - 1, False, active_player)[1]
             tup = (child, current_eval)
             max_list.append(tup)
+            if current_eval > max_eval:
+                max_eval = current_eval
+                best_move = child
+            alpha = max(alpha, current_eval)
+            if beta <= alpha:
+                break
 
         max_tuple = max(max_list, key=lambda p: p[1])
         best_move = max_tuple[0]
