@@ -1,6 +1,7 @@
 import copy
 import math
 
+
 def minimax(board, depth, alpha, beta, maximizer, active_player):
     if depth == 0 or board.end_game():
         return None, evaluate(board, active_player)
