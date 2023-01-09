@@ -1,6 +1,9 @@
 from print_board import print_matrix
 
 
+def in_board(_i, _j, r, c):
+    return (0 <= _i <= r - 1) and (0 <= _j <= c - 1)
+
 class Othello:
 
     def __init__(self):
@@ -92,34 +95,29 @@ class Othello:
                 if board[i][j] == 'e':
                     continue
                 else:
-                    # UP
-                    if 0 <= i - 1 <= row - 1:
-                        if board[i - 1][j] == 'e':
-                            empties.append((i - 1, j))
-                        if 0 <= j - 1 <= col - 1:
-                            if board[i - 1][j - 1] == 'e':
-                                empties.append((i - 1, j - 1))
-                        if 0 <= j + 1 <= col - 1:
-                            if board[i - 1][j + 1] == 'e':
-                                empties.append((i - 1, j + 1))
-                    # DOWN
-                    if 0 <= i + 1 <= row - 1:
-                        if board[i + 1][j] == 'e':
-                            empties.append((i + 1, j))
-                        if 0 <= j - 1 <= col - 1:
-                            if board[i + 1][j - 1] == 'e':
-                                empties.append((i + 1, j - 1))
-                        if 0 <= j + 1 <= col - 1:
-                            if board[i + 1][j + 1] == 'e':
-                                empties.append((i + 1, j + 1))
-                    # RIGHT
-                    if 0 <= j + 1 <= col - 1:
-                        if board[i][j + 1] == 'e':
-                            empties.append((i, j + 1))
-                    # LEFT
-                    if 0 <= j - 1 <= col - 1:
-                        if board[i][j - 1] == 'e':
-                            empties.append((i, j - 1))
+                    directions = [
+                        # left_up
+                        (-1, -1),
+                        # right_down
+                        (1, 1),
+                        # right_up
+                        (-1, 1),
+                        # left_down
+                        (1, -1),
+                        # down
+                        (-1, 0),
+                        # up
+                        (1, 0),
+                        # left
+                        (0, -1),
+                        # right
+                        (0, 1)
+                    ]
+                    for Dir in directions:
+                        _i, _j = Dir[0], Dir[1]
+                        if in_board(i + _i, j + _j, row, col):
+                            if board[i + _i][j + _j] == 'e':
+                                empties.append((i + _i, j + _j))
 
         return list(set(empties))
 
@@ -151,8 +149,25 @@ class Othello:
                 dictionary.update(temp)
                 return dictionary
 
-        row = len(board)
-        col = len(board[0])
+        directions = [
+            # left_up
+            (-1, -1),
+            # right_down
+            (1, 1),
+            # right_up
+            (-1, 1),
+            # left_down
+            (1, -1),
+            # down
+            (-1, 0),
+            # up
+            (1, 0),
+            # left
+            (0, -1),
+            # right
+            (0, 1)
+        ]
+        row, col = len(board), len(board[0])
         correct_moves = []
         pair_correct_moves = {}
         opponent = 'b' if player == 'w' else 'w'
@@ -161,159 +176,20 @@ class Othello:
             i = index[0]
             j = index[1]
 
-            # left-up diagonal
-            if 0 <= i - 1 <= row - 1 and 0 <= j - 1 <= col - 1:
-                if board[i - 1][j - 1] == opponent and i - 1 != 0 and j - 1 != 0:
-                    ii = i - 2
-                    jj = j - 2
-                    while ii >= 0 and j >= 0:
-                        if board[ii][jj] == opponent:
-                            ii -= 1
-                            jj -= 1
-                        else:
-                            if board[ii][jj] != 'e':
+            for Dir in directions:
+                _i = Dir[0]
+                _j = Dir[1]
+                if 0 <= i + _i <= row-1 and 0 <= j + _j <= col-1:
+                    if board[i+_i][j+_j] == opponent and in_board(i, j, row, col):
+                        ii, jj = i + 2*_i, j + 2*_j
+
+                        while in_board(ii, jj, row, col):
+                            if board[ii][jj] == opponent:
+                                ii += _i
+                                jj += _j
+                            elif board[ii][jj] != 'e':
                                 correct_moves.append((i, j))
                                 pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, jj))
-                                break
-                            else:
-                                break
-
-            # right-down diagonal
-            if 0 <= i + 1 <= row - 1 and 0 <= j + 1 <= col - 1:
-                if board[i + 1][j + 1] == opponent and i + 1 != row - 1 and j + 1 != col - 1:
-                    ii = i + 2
-                    jj = j + 2
-                    while ii <= row - 1 and jj <= col - 1:
-                        if board[ii][jj] == opponent:
-                            ii += 1
-                            jj += 1
-                        else:
-                            if board[ii][jj] != 'e':
-                                flag = True
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, jj))
-                                break
-                            else:
-                                break
-
-            # right-up diagonal
-            if 0 <= i - 1 <= row - 1 and 0 <= j + 1 <= col - 1:
-                if board[i - 1][j + 1] == opponent and i - 1 != 0 and j + 1 != col - 1:
-                    ii = i - 2
-                    jj = j + 2
-                    while ii >= 0 and jj <= col - 1:
-                        if board[ii][jj] == opponent:
-                            ii -= 1
-                            jj += 1
-                        else:
-                            if board[ii][jj] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, jj))
-                                break
-                            else:
-                                break
-
-            # left-down diagonal
-            if 0 <= i + 1 <= row - 1 and 0 <= j - 1 <= col - 1:
-                if board[i + 1][j - 1] == opponent and i + 1 != row - 1 and j - 1 != 0:
-                    ii = i + 2
-                    jj = j - 2
-                    while ii <= row - 1 and jj >= 0:
-                        if board[ii][jj] == opponent:
-                            ii += 1
-                            jj -= 1
-                        else:
-                            if board[ii][jj] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, jj))
-                                break
-                            else:
-                                break
-
-            """
-            Check up column of index
-                exm:'w'  -> if ?? == 'b' then correct move
-                    'b'
-                    'w'
-                    'w'
-                    'w'
-                     ??
-                    'w'
-                    'w'
-            """
-            if 0 <= i - 1 <= row - 1:
-                column = [[Row[j]] for Row in board]
-                if column[i - 1][0] == opponent and i - 1 != 0:
-                    ii = i - 2
-                    while ii >= 0:
-                        if column[ii][0] == opponent:
-                            ii -= 1
-                        else:
-                            if column[ii][0] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, j))
-                                break
-                            else:
-                                break
-
-            """
-            Check down column of index
-                exm:'w'  -> if ?? == 'b' then correct move
-                     ??
-                    'w'
-                    'w'
-                    'w'
-                    'b'
-                    'w'
-                    'w'
-            """
-            if 0 <= i + 1 < row - 1:
-                column = [[Row[j]] for Row in board]
-                if column[i + 1][0] == opponent and i + 1 != row - 1:
-                    ii = i + 2
-                    while ii <= row - 1:
-                        if column[ii][0] == opponent:
-                            ii += 1
-                        else:
-                            if column[ii][0] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (ii, j))
-                                break
-                            else:
-                                break
-
-            """
-            Check left row of index
-                exm: 'w','b','w','w','w',??,'w','w' -> if ?? == 'b' then correct move
-            """
-            if 0 <= j - 1 <= col - 1:
-                if board[i][j - 1] == opponent and j - 1 != 0:
-                    jj = j - 2
-                    while jj >= 0:
-                        if board[i][jj] == opponent:
-                            jj -= 1
-                        else:
-                            if board[i][jj] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (i, jj))
-                                break
-                            else:
-                                break
-
-            """
-            Check right row of index
-                exm: 'w',??,'w','w','w','b','w','w' -> if ?? == 'b' then correct move
-            """
-            if 0 <= j + 1 <= col - 1:
-                if board[i][j + 1] == opponent and j + 1 != col - 1:
-                    jj = j + 2
-                    while jj <= col - 1:
-                        if board[i][jj] == opponent:
-                            jj += 1
-                        else:
-                            if board[i][jj] != 'e':
-                                correct_moves.append((i, j))
-                                pair_correct_moves = add_key(pair_correct_moves, (i, j), (i, jj))
                                 break
                             else:
                                 break
@@ -327,6 +203,7 @@ class Othello:
         j = move[1]
         if type(pair_moves) == tuple:
             pair_moves = [pair_moves]
+
         for elem in pair_moves:
             if i == elem[0]:
                 left_col = min(j, elem[1])
