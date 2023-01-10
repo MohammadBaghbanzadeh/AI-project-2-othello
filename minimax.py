@@ -185,11 +185,18 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
 
     else:
         min_list = []
+        min_eval = math.inf
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, active_player, current_level + 1,transposition_table)[1]
             tup = (child, current_eval)
             min_list.append(tup)
+            if current_eval < min_eval:
+                min_eval = current_eval
+                best_move = child
+            beta = min(beta, current_eval)
+            if beta <= alpha:
+                break
 
         min_tuple = min(min_list, key=lambda p: p[1])
         best_move = min_tuple[0]
