@@ -15,8 +15,8 @@ def minimax(board, depth, alpha, beta, maximizer, active_player):
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = minimax(board_copy, depth - 1, alpha, beta, False, active_player)[1]
-            tup = (child, current_eval)
-            max_list.append(tup)
+            child_eval = (child, current_eval)
+            max_list.append(child_eval)
             if current_eval > max_eval:
                 max_eval = current_eval
                 best_move = child
@@ -35,8 +35,8 @@ def minimax(board, depth, alpha, beta, maximizer, active_player):
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = minimax(board_copy, depth - 1, alpha, beta, True, active_player)[1]
-            tup = (child, current_eval)
-            min_list.append(tup)
+            child_eval = (child, current_eval)
+            min_list.append(child_eval)
             if current_eval < min_eval:
                 min_eval = current_eval
                 best_move = child
