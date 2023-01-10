@@ -1,6 +1,7 @@
 import copy
 import math
 from Othello import Othello
+from TranspositionTable import TranspositionTable
 from print_board import print_matrix
 game = Othello()
 
