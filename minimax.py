@@ -151,7 +151,6 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
 
     global game
     children = game.successor(board, active_player)
-    best_move = children[0]
 
     if maximizer:
         max_list = []
@@ -159,8 +158,8 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, active_player, current_level + 1)[1]
-            tup = (child, current_eval)
-            max_list.append(tup)
+            child_value = (child, current_eval)
+            max_list.append(child_value)
             if current_eval > max_eval:
                 max_eval = current_eval
                 best_move = child
@@ -178,8 +177,8 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         for child in children:
             board_copy = copy.deepcopy(child)
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, active_player, current_level + 1)[1]
-            tup = (child, current_eval)
-            min_list.append(tup)
+            child_value = (child, current_eval)
+            min_list.append(child_value)
 
         min_tuple = min(min_list, key=lambda p: p[1])
         best_move = min_tuple[0]
