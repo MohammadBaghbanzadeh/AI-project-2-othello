@@ -63,7 +63,17 @@ def evaluate(board, player):
     return utility
 
 
-
+def numDiffe(self, board):
+    all_pieces = [i for elem in board for i in elem]
+    white_pieces = sum(1 for i in all_pieces if i == 'w')
+    black_pieces = sum(1 for i in all_pieces if i == 'b')
+   
+    if white_pieces > black_pieces:
+        return (white_pieces / (black_pieces + white_pieces)) * 100
+    else:
+        return - (black_pieces / (black_pieces + white_pieces)) * 100
+    
+    
 def count_corners(board):
     # the corners of the board
     corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
