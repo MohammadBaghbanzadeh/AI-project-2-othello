@@ -1,6 +1,7 @@
 import copy
 import math
 from Othello import Othello
+from TranspositionTable import TranspositionTable
 from print_board import print_matrix
 import time
 game = Othello()
@@ -155,9 +156,16 @@ def mobility(board, player):
 
 
 # ____________________________________________________________
-def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_level=0):
+def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_level=0, transposition_table=TranspositionTable()):
+    result = transposition_table.retrieve(board, depth)
+    if result:
+        return result
+
     if depth == 0 or current_level == depth:
-        return None, evaluate(board, active_player)
+        result = None, evaluate(board, active_player)
+        transposition_table.store(board, result, depth)
+        return result
+
 
     global game
     children = game.successor(board, active_player)
@@ -167,31 +175,51 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
     if maximizer and children:
         # print(f"in maximizer children is: {'is empty' if not children else 'ful'}")
         # print(f"depth is: {depth}")
+    best_move = children[0]
+
+    # since the first round is the given player, it starts by maximizing the utility
+    if maximizer:
+        # a list created to store each child and its value of heuristic
         max_list = []
         max_eval = -math.inf
         if type(children) != list:
             children = [children]
         for child in children:
+            # taking a copy of each child so we can change it
             board_copy = copy.deepcopy(child)
             opponent0 = 'w' if active_player == 'b' else 'w'
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, opponent0, current_level + 1)[1]
             tup = (child, current_eval)
             max_list.append(tup)
+            # calling minimax on each child (copy)
+            # current_eval is the value of heuristic
+            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, active_player, current_level + 1,transposition_table)[1]
+            # a tuple of each child with it's heristic value
+            child_value_max = (child, current_eval)
+            # adding the tuples of child & eval to the list
+            max_list.append(child_value_max)
+            # alpha, beta pruning for maximizer
             if current_eval > max_eval:
                 max_eval = current_eval
             alpha = max(alpha, current_eval)
             if beta <= alpha:
                 break
-
+        # choosing the best child by it's heuristic value
         max_tuple = max(max_list, key=lambda p: p[1])
+        # best_move is the child with the best heuristic
         best_move = max_tuple[0]
+        # max_value is the heuristic value of the child
         max_value = max_tuple[1]
-        return best_move, max_value
+        result = best_move, max_value
+        transposition_table.store(board, result, depth)
+        return result
+    # after the first round, since we are calculating the heuristic of opponent, we switch to minimizer
 
     elif not maximizer and children:
         # print(f"in minimizer children is: {children}")
         min_list = []
         for child in children:
+            # taking a copy of each child so we can change it
             board_copy = copy.deepcopy(child)
             opponent1 = 'b' if active_player == 'w' else 'b'
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, opponent1, current_level + 1)[1]
@@ -199,12 +227,31 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
             min_list.append(tup)
             if beta <= alpha:
                 break
+            # calling minimax on each child (copy)
+            # current_eval is the value of heuristic
+            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, active_player, current_level + 1,transposition_table)[1]
+            # a tuple of each child with it's heristic value
+            child_value_min = (child, current_eval)
+            # adding the tuples of child & eval to the list
+            min_list.append(child_value_min)
+            # alpha, beta pruning for minimizer
+            if current_eval < min_eval:
+                min_eval = current_eval
+                best_move = child
+            beta = min(beta, current_eval)
+            if beta <= alpha:
+                break
+
+        # choosing the best child by it's heuristic value
         min_tuple = min(min_list, key=lambda p: p[1])
         best_move = min_tuple[0]
         min_value = min_tuple[1]
-        return best_move, min_value
+        result = best_move, min_value
+        transposition_table.store(board, result, depth)
+        return result
     else:
         return 0, 0
+
 
 
 if __name__ == "__main__":
