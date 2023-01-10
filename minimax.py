@@ -113,3 +113,22 @@ def mobility(board, player):
     return possibility
 
 
+def stability(board, player):
+    
+    opponent = 'b' if player == 'w' else 'w'
+    for i in range(8):
+        for j in range(8):
+            stable_pieces = 0
+            if board[i][j] == player:
+           
+                if (j == 0 or board[i][j - 1] == opponent) and (j == 7 or board[i][j + 1] == opponent):
+                    stable_pieces += 1
+                if (i == 0 or board[i-1][j] == opponent) and (i == 7 or board[i+1][j] == opponent):
+                    stable_pieces += 1
+                
+                if (i == 0 or j == 0 or board[i-1][j-1] == opponent) and (i == 7 or j == 7 or board[i+1][j+1] == opponent):
+                    stable_pieces += 1
+                if (i == 0 or j == 7 or board[i-1][j+1] == opponent) and (i == 7 or j == 0 or board[i+1][j-1] == opponent):
+                    stable_pieces += 1
+   
+    return stable_pieces
