@@ -186,19 +186,19 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         min_value = min_tuple[1]
         return best_move, min_value
 
-#
-arr = [
-    ['w', 'b', 'w', 'w', 'w', 'e', 'e', 'e'],
-    ['e', 'b', 'e', 'w', 'e', 'b', 'e', 'e'],
-    ['w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
-    ['e', 'b', 'e', 'b', 'b', 'e', 'e', 'e'],
-    ['e', 'b', 'e', 'b', 'b', 'b', 'e', 'e'],
-    ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-    ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-    ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e']
-]
-print_matrix(arr)
-t = alpha_beta(arr, 2, -float('inf'), float('inf'), True, 'b', 0)
-print_matrix(t[0])
-print(t[1])
+if __name__ == "__main__":
+    arr = [
+        ['w', 'b', 'w', 'w', 'w', 'e', 'e', 'e'],
+        ['e', 'b', 'e', 'w', 'e', 'b', 'e', 'e'],
+        ['w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
+        ['e', 'b', 'e', 'b', 'b', 'e', 'e', 'e'],
+        ['e', 'b', 'e', 'b', 'b', 'b', 'e', 'e'],
+        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
+        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
+        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e']
+    ]
+    print_matrix(arr)
+    t = alpha_beta(arr, 2, -float('inf'), float('inf'), True, 'b', 0)
+    print_matrix(t[0])
+    print(t[1])
 
