@@ -81,3 +81,27 @@ def count_corners(board):
 
     return white_count, black_count
 
+
+def count_sides(board):
+
+    white_count = 0
+    black_count = 0
+
+    #count the number of side pieces owned by each player
+    for i in range(1, 7):
+        for j in [0, 7]:
+            if board[i][j] == "w":
+                white_count += 1
+            elif board[i][j] == "b":
+                black_count += 1
+                
+    for i in [0, 7]:
+        for j in range(1, 7):
+            if board[i][j] == "w":
+                white_count += 1
+            elif board[i][j] == "b":
+                black_count += 1
+
+    return white_count, black_count
+
+
