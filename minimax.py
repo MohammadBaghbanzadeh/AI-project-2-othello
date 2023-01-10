@@ -42,28 +42,13 @@ def minimax(board, depth, alpha, beta, maximizer, active_player):
         min_value = min_tuple[1]
         return best_move, min_value
 
-# w = max(players, key=lambda p: p.totalScore
 
-
-def evaluate(board, player):
-    white_utility = 0
-    black_utility = 0
-    for i in range(len(board)):
-        for j in range(len(board[i])):
-            if board[i][j] == 'b':
-                black_utility += 1
-            elif board[i][j] == 'w':
-                white_utility += 1
-
-    if player == 'b':
-        utility = black_utility - white_utility
-    else:
-        utility = white_utility - black_utility
-
-    return utility
-
-
-def numDiffe(self, board):
+def evaluate(board.player):
+    return numDiffe(board)+count_corners(board)+count_sides(board)+mobility(board)+stability(board,player)
+ 
+#____________________________________________________________
+    
+def numDiffe(board):
     all_pieces = [i for elem in board for i in elem]
     white_pieces = sum(1 for i in all_pieces if i == 'w')
     black_pieces = sum(1 for i in all_pieces if i == 'b')
@@ -73,30 +58,28 @@ def numDiffe(self, board):
     else:
         return - (black_pieces / (black_pieces + white_pieces)) * 100
     
-    
+#____________________________________________________________
 def count_corners(board):
-    # the corners of the board
+    # define the corners of the board
     corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
-
     # initialize the counts for each player
     white_count = 0
     black_count = 0
-
+    
     # count the number of corners owned by each player
     for i, j in corners:
         if board[i][j] == "w":
             white_count += 1
         elif board[i][j] == "b":
             black_count += 1
-
-    return white_count, black_count
-
-
+    
+    return 25 * (white_count-black_count)
+#____________________________________________________________
 def count_sides(board):
-
+ 
     white_count = 0
     black_count = 0
-
+    
     #count the number of side pieces owned by each player
     for i in range(1, 7):
         for j in [0, 7]:
@@ -104,41 +87,64 @@ def count_sides(board):
                 white_count += 1
             elif board[i][j] == "b":
                 black_count += 1
-                
     for i in [0, 7]:
         for j in range(1, 7):
             if board[i][j] == "w":
-                white_count += 1
+                 white_count += 1
             elif board[i][j] == "b":
                 black_count += 1
 
-    return white_count, black_count
-
-def mobility(board, player):
+    return 4 * (white_count-black_count)
+#____________________________________________________________
+def mobility(board):
     black_mobility = len(find_correct_moves(board, find_empty(board), 'b')[0])
     white_mobility = len(find_correct_moves(board, find_empty(board), 'w')[0])
-    mobility_diff = white_mobility - black_mobility if player == 'w' else black_mobility - white_mobility
+    mobility = white_mobility/(white_mobility + black_mobility)
     # calculate Possibility
-    possibility = mobility_diff * 100
+    possibility = mobility * 100
     return possibility
 
-
-def stability(board, player):
-    
+#____________________________________________________________
+def stability(board,player):
+        
+    stability = [0, 0]
+    blackStability = stability[0]
+    whiteStability = stability[1]
+        
     opponent = 'b' if player == 'w' else 'w'
+        
     for i in range(8):
-        for j in range(8):
-            stable_pieces = 0
-            if board[i][j] == player:
+        for j in range(8):  
+            stable_pieces = 0 
+            if board[i][j] == 0:
+                continue
            
-                if (j == 0 or board[i][j - 1] == opponent) and (j == 7 or board[i][j + 1] == opponent):
-                    stable_pieces += 1
-                if (i == 0 or board[i-1][j] == opponent) and (i == 7 or board[i+1][j] == opponent):
-                    stable_pieces += 1
+            if (j == 0 or board[i][j - 1] == opponent) and (j == 7 or board[i][j + 1] == opponent):
+                stable_pieces += 1
                 
-                if (i == 0 or j == 0 or board[i-1][j-1] == opponent) and (i == 7 or j == 7 or board[i+1][j+1] == opponent):
-                    stable_pieces += 1
-                if (i == 0 or j == 7 or board[i-1][j+1] == opponent) and (i == 7 or j == 0 or board[i+1][j-1] == opponent):
-                    stable_pieces += 1
-   
-    return stable_pieces
+            if (i == 0 or board[i-1][j] == opponent) and (i == 7 or board[i+1][j] == opponent):
+                stable_pieces += 1
+                
+            if (i == 0 or j == 0 or board[i-1][j-1] == opponent) and (i == 7 or j == 7 or board[i+1][j+1] == opponent):
+                stable_pieces += 1
+                
+            if (i == 0 or j == 7 or board[i-1][j+1] == opponent) and (i == 7 or j == 0 or board[i+1][j-1] == opponent):
+                stable_pieces += 1
+                    
+            if stable_pieces >= 7:
+                stability[board[i][j] - 1] -= 1;
+                    
+            elif stable_pieces <= 3:
+                stability[board[i][j] - 1] += 1;
+                    
+    whiteStability = stability[1]
+    blackStability =  stability[0]
+    if whiteStability + blackStability == 0:
+        return 0
+    else:
+        Stability = whiteStability / (whiteStability + blackStability)
+        return 100 * Stability
+                
+            
+
+
