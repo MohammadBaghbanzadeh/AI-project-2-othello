@@ -107,11 +107,9 @@ def count_sides(board):
 def mobility(board, player):
     black_mobility = len(find_correct_moves(board, find_empty(board), 'b')[0])
     white_mobility = len(find_correct_moves(board, find_empty(board), 'w')[0])
-    
-    mobility = white_mobility/(white_mobility + black_mobility) if player == 'w' else black_mobility/(black_mobility + white_mobility)
-    
+    mobility_diff = white_mobility - black_mobility if player == 'w' else black_mobility - white_mobility
     # calculate Possibility
-    possibility = mobility * 100
-    
+    possibility = mobility_diff * some_weight
     return possibility
+
 
