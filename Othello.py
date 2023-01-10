@@ -1,6 +1,5 @@
 from copy import deepcopy
 from print_board import print_matrix
-from ai import AI
 
 
 def in_board(_i, _j, r, c):
