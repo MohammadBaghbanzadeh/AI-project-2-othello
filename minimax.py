@@ -2,23 +2,30 @@ import copy
 import math
 from Othello import Othello
 from print_board import print_matrix
+import time
 game = Othello()
 
 
 def evaluate(board, player):
-    return numDiffe(board, player) + count_corners(board, player) + \
-           count_sides(board, player) + mobility(board, player) \
-           # + stability(board, player)
+    all_pieces = [i for elem in board for i in elem]
+    white_pieces = sum(1 for i in all_pieces if i == 'w')
+    black_pieces = sum(1 for i in all_pieces if i == 'b')
+    if white_pieces + black_pieces != len(all_pieces):
+        return numDiffe(board, player) + count_corners(board, player) + \
+               count_sides(board, player) + mobility(board, player) \
+               # + stability(board, player)
+    else:
+        return 0
 
 
 # ____________________________________________________________
 
-def numDiffe(board, player):
+def numDiffe(board, turn):
     all_pieces = [i for elem in board for i in elem]
     white_pieces = sum(1 for i in all_pieces if i == 'w')
     black_pieces = sum(1 for i in all_pieces if i == 'b')
 
-    if player == 'b':
+    if turn == 'b':
         return (black_pieces / (black_pieces + white_pieces)) * 100
     else:
         return (white_pieces / (black_pieces + white_pieces)) * 100
@@ -45,9 +52,10 @@ def count_corners(board, player):
 
     if player == 'b':
         return 25 * black_count
-    else:
+    elif player == 'w':
         return 25 * white_count
-
+    else:
+        return float(0)
     # return 25 * (white_count - black_count)
 
 
@@ -81,8 +89,10 @@ def count_sides(board, player):
 
     if player == 'b':
         return 4 * black_count
-    else:
+    elif player == 'w':
         return 4 * white_count
+    else:
+        return float(0)
     # return 4 * (white_count - black_count)
 
 
@@ -94,9 +104,9 @@ def mobility(board, player):
     # mobility = white_mobility / (white_mobility + black_mobility)
     # calculate Possibility
     # possibility = mobility * 100
-    if player == 'b':
+    if player == 'b' and (white_mobility + black_mobility) != 0:
         return 100 * (black_mobility / (white_mobility + black_mobility))
-    else:
+    elif player == 'w' and (white_mobility + black_mobility) != 0:
         return 100 * (white_mobility / (white_mobility + black_mobility))
     # return possibility
 
@@ -151,19 +161,24 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
 
     global game
     children = game.successor(board, active_player)
-    best_move = children[0]
-
-    if maximizer:
+    if not children:
+        op = 'b' if active_player == 'w' else 'w'
+        children = game.successor(board, op)
+    if maximizer and children:
+        # print(f"in maximizer children is: {'is empty' if not children else 'ful'}")
+        # print(f"depth is: {depth}")
         max_list = []
         max_eval = -math.inf
+        if type(children) != list:
+            children = [children]
         for child in children:
             board_copy = copy.deepcopy(child)
-            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, active_player, current_level + 1)[1]
+            opponent0 = 'w' if active_player == 'b' else 'w'
+            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, opponent0, current_level + 1)[1]
             tup = (child, current_eval)
             max_list.append(tup)
             if current_eval > max_eval:
                 max_eval = current_eval
-                best_move = child
             alpha = max(alpha, current_eval)
             if beta <= alpha:
                 break
@@ -173,32 +188,67 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         max_value = max_tuple[1]
         return best_move, max_value
 
-    else:
+    elif not maximizer and children:
+        # print(f"in minimizer children is: {children}")
         min_list = []
         for child in children:
             board_copy = copy.deepcopy(child)
-            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, active_player, current_level + 1)[1]
+            opponent1 = 'b' if active_player == 'w' else 'b'
+            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, opponent1, current_level + 1)[1]
             tup = (child, current_eval)
             min_list.append(tup)
-
+            if beta <= alpha:
+                break
         min_tuple = min(min_list, key=lambda p: p[1])
         best_move = min_tuple[0]
         min_value = min_tuple[1]
         return best_move, min_value
+    else:
+        return 0, 0
+
 
 if __name__ == "__main__":
-    arr = [
-        ['w', 'b', 'w', 'w', 'w', 'e', 'e', 'e'],
-        ['e', 'b', 'e', 'w', 'e', 'b', 'e', 'e'],
-        ['w', 'w', 'w', 'w', 'w', 'w', 'w', 'w'],
-        ['e', 'b', 'e', 'b', 'b', 'e', 'e', 'e'],
-        ['e', 'b', 'e', 'b', 'b', 'b', 'e', 'e'],
-        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e'],
-        ['e', 'e', 'e', 'e', 'e', 'e', 'e', 'e']
-    ]
+    """
+        AI TO AI MANAGER WITH ALPHA BETA PRUNING
+    """
+    player = 'b'
+    arr = [['e' for i in range(8)] for j in range(8)]
+    arr[3][3] = 'w'
+    arr[4][4] = 'w'
+    arr[4][3] = 'b'
+    arr[3][4] = 'b'
+
+    depth = 5
     print_matrix(arr)
-    t = alpha_beta(arr, 2, -float('inf'), float('inf'), True, 'b', 0)
+    t = alpha_beta(arr, depth, -float('inf'), float('inf'), True, player, 0)
     print_matrix(t[0])
     print(t[1])
+    arr = t[0]
 
+    while not game.end_game(arr):
+        opponent = 'b' if player == 'w' else 'w'
+        if len(game.successor(arr, opponent)) != 0:
+            player = 'b' if player == 'w' else 'w'
+        print(f"-------------------{'white'if player=='w' else 'black'}-------------------")
+        print_matrix(t[0], [], game.legal_moves(arr, player)[0])
+        start = time.time()
+        t = alpha_beta(arr, depth, -float('inf'), float('inf'), True, player, 0)
+        print(time.time()-start)
+        arr = t[0]
+        winner, draw = 0, False
+        if game.end_game(arr):
+            all_coins = [item for i in arr for item in i]
+            white_coins = sum(1 for i in all_coins if i == 'w')
+            black_coins = sum(1 for i in all_coins if i == 'b')
+            if black_coins != white_coins:
+                winner = 'b' if black_coins > white_coins else 'w'
+            else:
+                draw = True
+            print(f"-------------------{'white'if player=='w' else 'black'}-------------------")
+            print_matrix(t[0], [], game.legal_moves(arr, player)[0])
+            print("---------END GAME---------")
+            if winner: print(
+                f"Winner of the game is '{'Black player' if winner == 'b' else 'White player'}' and result "
+                f"is: {max(white_coins, black_coins)} > {min(white_coins, black_coins)}")
+            if draw: print(
+                f"Game is Draw and result is: {max(white_coins, black_coins)} = {min(white_coins, black_coins)}")
