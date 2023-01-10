@@ -151,35 +151,50 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
 
     global game
     children = game.successor(board, active_player)
-
+    # since the first round is the given player, it starts by maximizing the utility
     if maximizer:
+        # a list created to store each child and its value of heuristic
         max_list = []
         max_eval = -math.inf
         for child in children:
+            # taking a copy of each child so we can change it
             board_copy = copy.deepcopy(child)
+            # calling minimax on each child (copy)
+            # current_eval is the value of heuristic
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, active_player, current_level + 1)[1]
+            # a tuple of each child with it's heristic value
             child_value = (child, current_eval)
+            # adding the tuples of child & eval to the list
             max_list.append(child_value)
+            # alpha, beta pruning for maximizer
             if current_eval > max_eval:
                 max_eval = current_eval
                 best_move = child
             alpha = max(alpha, current_eval)
             if beta <= alpha:
                 break
-
+        # choosing the best child by it's heuristic value
         max_tuple = max(max_list, key=lambda p: p[1])
+        # best_move is the child with the best heuristic
         best_move = max_tuple[0]
+        # max_value is the heuristic value of the child
         max_value = max_tuple[1]
         return best_move, max_value
-
+    # after the first round, since we are calculating the heuristic of opponent, we switch to minimizer
     else:
+        # a list created to store each child and its value of heuristic
         min_list = []
         for child in children:
+            # taking a copy of each child so we can change it
             board_copy = copy.deepcopy(child)
+            # calling minimax on each child (copy)
+            # current_eval is the value of heuristic
             current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, active_player, current_level + 1)[1]
+            # a tuple of each child with it's heristic value
             child_value = (child, current_eval)
+            # adding the tuples of child & eval to the list
             min_list.append(child_value)
-
+        # choosing the best child by it's heuristic value
         min_tuple = min(min_list, key=lambda p: p[1])
         best_move = min_tuple[0]
         min_value = min_tuple[1]
