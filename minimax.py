@@ -62,3 +62,22 @@ def evaluate(board, player):
 
     return utility
 
+
+
+def count_corners(board):
+    # the corners of the board
+    corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
+
+    # initialize the counts for each player
+    white_count = 0
+    black_count = 0
+
+    # count the number of corners owned by each player
+    for i, j in corners:
+        if board[i][j] == "w":
+            white_count += 1
+        elif board[i][j] == "b":
+            black_count += 1
+
+    return white_count, black_count
+
