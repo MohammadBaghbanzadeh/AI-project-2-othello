@@ -63,7 +63,17 @@ def evaluate(board, player):
     return utility
 
 
-
+def numDiffe(self, board):
+    all_pieces = [i for elem in board for i in elem]
+    white_pieces = sum(1 for i in all_pieces if i == 'w')
+    black_pieces = sum(1 for i in all_pieces if i == 'b')
+   
+    if white_pieces > black_pieces:
+        return (white_pieces / (black_pieces + white_pieces)) * 100
+    else:
+        return - (black_pieces / (black_pieces + white_pieces)) * 100
+    
+    
 def count_corners(board):
     # the corners of the board
     corners = [(0, 0), (0, 7), (7, 0), (7, 7)]
@@ -104,4 +114,31 @@ def count_sides(board):
 
     return white_count, black_count
 
+def mobility(board, player):
+    black_mobility = len(find_correct_moves(board, find_empty(board), 'b')[0])
+    white_mobility = len(find_correct_moves(board, find_empty(board), 'w')[0])
+    mobility_diff = white_mobility - black_mobility if player == 'w' else black_mobility - white_mobility
+    # calculate Possibility
+    possibility = mobility_diff * 100
+    return possibility
 
+
+def stability(board, player):
+    
+    opponent = 'b' if player == 'w' else 'w'
+    for i in range(8):
+        for j in range(8):
+            stable_pieces = 0
+            if board[i][j] == player:
+           
+                if (j == 0 or board[i][j - 1] == opponent) and (j == 7 or board[i][j + 1] == opponent):
+                    stable_pieces += 1
+                if (i == 0 or board[i-1][j] == opponent) and (i == 7 or board[i+1][j] == opponent):
+                    stable_pieces += 1
+                
+                if (i == 0 or j == 0 or board[i-1][j-1] == opponent) and (i == 7 or j == 7 or board[i+1][j+1] == opponent):
+                    stable_pieces += 1
+                if (i == 0 or j == 7 or board[i-1][j+1] == opponent) and (i == 7 or j == 0 or board[i+1][j-1] == opponent):
+                    stable_pieces += 1
+   
+    return stable_pieces
