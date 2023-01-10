@@ -163,7 +163,22 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
     else:
         return 0, 0
 
+# ____________________________________________________________
+def beam_search( board, player, depth, beam_width=2):
 
+    if depth == 0:
+        return [(evaluate(board, player), None)]  # Return the score of the current board state
+    top_moves = []
+    # Generate all possible states of the game
+    for new_board in game.successor(board, player):
+        opponent = 'b' if player == 'w' else 'w'
+        # Recursively call beam_search for next level and next player
+        score, _ = beam_search(new_board, opponent, depth-1, beam_width)[0]
+        top_moves.append((score, new_board))
+    top_moves.sort(reverse=True)  # sort by descending score
+    return top_moves[:beam_width]
+
+# ____________________________________________________________
 if __name__ == "__main__":
     """
         AI TO AI MANAGER WITH ALPHA BETA PRUNING
