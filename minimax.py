@@ -109,7 +109,7 @@ def mobility(board, player):
     white_mobility = len(find_correct_moves(board, find_empty(board), 'w')[0])
     mobility_diff = white_mobility - black_mobility if player == 'w' else black_mobility - white_mobility
     # calculate Possibility
-    possibility = mobility_diff * some_weight
+    possibility = mobility_diff * 100
     return possibility
 
 
