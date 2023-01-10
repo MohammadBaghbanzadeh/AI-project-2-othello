@@ -1,4 +1,6 @@
+from copy import deepcopy
 from print_board import print_matrix
+from ai import AI
 
 
 def in_board(_i, _j, r, c):
@@ -6,8 +8,10 @@ def in_board(_i, _j, r, c):
 
 class Othello:
 
-    def __init__(self):
+    def __init__(self, useAI=False):
         self.board = []
+        self.useAI = useAI
+        self.ai_engine = AI()
 
     def legal_moves(self, board, _player):
         empty_surrounding_cells = self.find_empty(board)
@@ -58,10 +62,9 @@ class Othello:
                 print("\tYou Entered Illegal Move!")
                 print("\tTry again, ", end='')
                 ind = tuple(map(int, input(f"it's {'white' if player == 'w' else 'black'} turn:\t").split(" ")))
-            flip_coins = self.find_between(ind, self.legal_moves(arr, player)[2][ind])
-            arr[ind[0]][ind[1]] = player
-            for i in flip_coins:
-                arr[i[0]][i[1]] = player
+
+            pair_of_move = self.legal_moves(arr, player)[2]
+            arr = self.change_between(arr, ind, pair_of_move[ind], player)
 
             # Check if the opponent has a valid move, then switch the turn.
             opponent = 'b' if player == 'w' else 'w'
@@ -179,9 +182,9 @@ class Othello:
             for Dir in directions:
                 _i = Dir[0]
                 _j = Dir[1]
-                if 0 <= i + _i <= row-1 and 0 <= j + _j <= col-1:
-                    if board[i+_i][j+_j] == opponent and in_board(i, j, row, col):
-                        ii, jj = i + 2*_i, j + 2*_j
+                if 0 <= i + _i <= row - 1 and 0 <= j + _j <= col - 1:
+                    if board[i + _i][j + _j] == opponent and in_board(i, j, row, col):
+                        ii, jj = i + 2 * _i, j + 2 * _j
 
                         while in_board(ii, jj, row, col):
                             if board[ii][jj] == opponent:
@@ -197,7 +200,7 @@ class Othello:
         return correct_moves, pair_correct_moves
 
     @staticmethod
-    def find_between(move, pair_moves):
+    def change_between(board, move, pair_moves, turn):
         arr = []
         i = move[0]
         j = move[1]
@@ -242,4 +245,25 @@ class Othello:
                         ii += 1
                         jj -= 1
                         arr.append((ii, jj))
-        return arr
+
+        board[move[0]][move[1]] = turn
+        for i in arr:
+            board[i[0]][i[1]] = turn
+        return board
+
+    def successor(self, board, turn):
+        result = self.legal_moves(board, turn)
+        next_move, empties, pair_moves = result[0], result[1], result[2]
+        successor_arr = []
+        if type(next_move) != list:
+            next_move = [next_move]
+        for move in next_move:
+            tmp = deepcopy(board)
+            tmp = self.change_between(tmp, move, pair_moves[move], turn)
+            successor_arr.append(tmp)
+        for mat in successor_arr:
+            print_matrix(mat)
+
+    def ai2ai_manager(self):
+        # after completing the AI class this game manager will be manage game between two ai player.
+        pass
