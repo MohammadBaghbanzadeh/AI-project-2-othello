@@ -142,8 +142,8 @@ def stability(board,player):
     if whiteStability + blackStability == 0:
         return 0
     else:
-        Stability = whiteStability / (whiteStability + blackStability)
-        return 100 * Stability
+        stability = whiteStability / (whiteStability + blackStability)
+        return 100 * stability
                 
             
 
