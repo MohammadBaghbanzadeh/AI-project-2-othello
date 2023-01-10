@@ -43,7 +43,7 @@ def minimax(board, depth, alpha, beta, maximizer, active_player):
         return best_move, min_value
 
 
-def evaluate(board.player):
+def evaluate(board,player):
     return numDiffe(board)+count_corners(board)+count_sides(board)+mobility(board)+stability(board,player)
  
 #____________________________________________________________
