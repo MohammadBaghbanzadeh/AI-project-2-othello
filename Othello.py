@@ -11,7 +11,6 @@ class Othello:
     def __init__(self, useAI=False):
         self.board = []
         self.useAI = useAI
-        self.ai_engine = AI()
 
     def legal_moves(self, board, _player):
         empty_surrounding_cells = self.find_empty(board)
