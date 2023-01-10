@@ -98,24 +98,8 @@ class Othello:
                 if board[i][j] == 'e':
                     continue
                 else:
-                    directions = [
-                        # left_up
-                        (-1, -1),
-                        # right_down
-                        (1, 1),
-                        # right_up
-                        (-1, 1),
-                        # left_down
-                        (1, -1),
-                        # down
-                        (-1, 0),
-                        # up
-                        (1, 0),
-                        # left
-                        (0, -1),
-                        # right
-                        (0, 1)
-                    ]
+                    #              left_up, right_down, right_up, left_down, down, up, left, right
+                    directions = [(-1, -1), (1, 1), (-1, 1), (1, -1), (-1, 0), (1, 0), (0, -1), (0, 1)]
                     for Dir in directions:
                         _i, _j = Dir[0], Dir[1]
                         if in_board(i + _i, j + _j, row, col):
@@ -152,24 +136,8 @@ class Othello:
                 dictionary.update(temp)
                 return dictionary
 
-        directions = [
-            # left_up
-            (-1, -1),
-            # right_down
-            (1, 1),
-            # right_up
-            (-1, 1),
-            # left_down
-            (1, -1),
-            # down
-            (-1, 0),
-            # up
-            (1, 0),
-            # left
-            (0, -1),
-            # right
-            (0, 1)
-        ]
+        #              left_up, right_down, right_up, left_down, down, up, left, right
+        directions = [(-1, -1), (1, 1), (-1, 1), (1, -1), (-1, 0), (1, 0), (0, -1), (0, 1)]
         row, col = len(board), len(board[0])
         correct_moves = []
         pair_correct_moves = {}
@@ -261,8 +229,9 @@ class Othello:
             tmp = deepcopy(board)
             tmp = self.change_between(tmp, move, pair_moves[move], turn)
             successor_arr.append(tmp)
-        for mat in successor_arr:
-            print_matrix(mat)
+        # for mat in successor_arr:
+        #     print_matrix(mat)
+        return successor_arr
 
     def ai2ai_manager(self):
         # after completing the AI class this game manager will be manage game between two ai player.
