@@ -1,9 +1,11 @@
-import copy
+from copy import deepcopy
 import math
+import numpy as np
 from Othello import Othello
 from TranspositionTable import TranspositionTable
 from print_board import print_matrix
 import time
+
 game = Othello()
 
 
@@ -100,8 +102,10 @@ def mobility(board, player):
     elif player == 'w' and (white_mobility + black_mobility) != 0:
         return 100 * (white_mobility / (white_mobility + black_mobility))
 
+
 # ____________________________________________________________
-def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_level=0, transposition_table=TranspositionTable()):
+def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_level=0,
+               transposition_table=TranspositionTable()):
     result = transposition_table.retrieve(board, depth)
     if result:
         return result
@@ -124,7 +128,9 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         for child in children:
             board_copy = copy.deepcopy(child)
             opponent0 = 'w' if active_player == 'b' else 'w'
-            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, False, opponent0, current_level + 1, transposition_table)[1]
+            current_eval = \
+                alpha_beta(board_copy, depth - 1, alpha, beta, False, opponent0, current_level + 1,
+                           transposition_table)[1]
             tup = (child, current_eval)
             max_list.append(tup)
             if current_eval > max_eval:
@@ -144,9 +150,11 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
         min_list = []
         min_eval = math.inf
         for child in children:
-            board_copy = copy.deepcopy(child)
+            board_copy = deepcopy(child)
             opponent1 = 'b' if active_player == 'w' else 'b'
-            current_eval = alpha_beta(board_copy, depth - 1, alpha, beta, True, opponent1, current_level + 1, transposition_table)[1]
+            current_eval = \
+                alpha_beta(board_copy, depth - 1, alpha, beta, True, opponent1, current_level + 1, transposition_table)[
+                    1]
             tup = (child, current_eval)
             min_list.append(tup)
             if current_eval < min_eval:
@@ -163,20 +171,32 @@ def alpha_beta(board, depth, alpha, beta, maximizer, active_player, current_leve
     else:
         return 0, 0
 
-# ____________________________________________________________
-def beam_search( board, player, depth, beam_width=2):
 
+# ____________________________________________________________
+
+
+def beam_search(self, arr, _player, depth, beam_width, evaluate_fn):
     if depth == 0:
-        return [(evaluate(board, player), None)]  # Return the score of the current board state
-    top_moves = []
-    # Generate all possible states of the game
-    for new_board in game.successor(board, player):
-        opponent = 'b' if player == 'w' else 'w'
-        # Recursively call beam_search for next level and next player
-        score, _ = beam_search(new_board, opponent, depth-1, beam_width)[0]
-        top_moves.append((score, new_board))
-    top_moves.sort(reverse=True)  # sort by descending score
-    return top_moves[:beam_width]
+        return evaluate_fn(arr, _player), []
+
+    empty_cells = self.find_empty(arr)
+    legal_moves, _, pair_moves = self.legal_moves(arr, _player)
+    children = []
+    for move in legal_moves:
+        new_board = self.change_between(deepcopy(arr), move, pair_moves[move], _player)
+        children.append((new_board, move))
+    next_player = 'w' if _player == 'b' else 'b'
+    evaluated_children = []
+    for child, move in children:
+        evaluated_children.append((evaluate_fn(child, next_player), [move]))
+    evaluated_children = sorted(evaluated_children, reverse=True, key=lambda x: x[0])
+    next_boards = [child[0] for child in evaluated_children[:beam_width]]
+    next_moves = [child[1][0] for child in evaluated_children[:beam_width]]
+    results = []
+    for next_board in next_boards:
+        results.append(beam_search(self, next_board, next_player, depth - 1, beam_width, evaluate_fn))
+    return max(results, key=lambda x: x[0])
+
 
 # ____________________________________________________________
 if __name__ == "__main__":
@@ -201,11 +221,11 @@ if __name__ == "__main__":
         opponent = 'b' if player == 'w' else 'w'
         if len(game.successor(arr, opponent)) != 0:
             player = 'b' if player == 'w' else 'w'
-        print(f"-------------------{'white'if player=='w' else 'black'}-------------------")
+        print(f"-------------------{'white' if player == 'w' else 'black'}-------------------")
         print_matrix(t[0], [], game.legal_moves(arr, player)[0])
         start = time.time()
         t = alpha_beta(arr, depth, -float('inf'), float('inf'), True, player, 0)
-        print(time.time()-start)
+        print(time.time() - start)
         arr = t[0]
         winner, draw = 0, False
         if game.end_game(arr):
@@ -216,7 +236,7 @@ if __name__ == "__main__":
                 winner = 'b' if black_coins > white_coins else 'w'
             else:
                 draw = True
-            print(f"-------------------{'white'if player=='w' else 'black'}-------------------")
+            print(f"-------------------{'white' if player == 'w' else 'black'}-------------------")
             print_matrix(t[0], [], game.legal_moves(arr, player)[0])
             print("---------END GAME---------")
             if winner: print(
